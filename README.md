@@ -45,8 +45,8 @@ pip (Python package manager)
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/metro-store-ai-assistant.git
-cd metro-store-ai-assistant
+git clone https://github.com/saim-glitch/Raise_your_Hack_Hackathon.git
+cd Raise_your_Hack_Hackathon
 ```
 
 ### 2. Install Dependencies
@@ -166,8 +166,8 @@ class EmailService:
 ### Option 1: Standard Installation
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/metro-store-ai-assistant.git
-cd metro-store-ai-assistant
+git clone https://github.com/saim-glitch/Raise_your_Hack_Hackathon.git
+cd Raise_your_Hack_Hackathon
 
 # Install dependencies
 pip install -r requirements.txt
@@ -322,8 +322,8 @@ We welcome contributions! Here's how to get started:
 
 ### 1. Fork the Repository
 ```bash
-git clone https://github.com/yourusername/metro-store-ai-assistant.git
-cd metro-store-ai-assistant
+git clone https://github.com/saim-glitch/Raise_your_Hack_Hackathon.git
+cd Raise_your_Hack_Hackathon
 ```
 
 ### 2. Create a Feature Branch
@@ -527,7 +527,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ```
 MIT License
 
-Copyright (c) 2024 Metro Store AI Assistant
+Copyright (c) 2025 Metro Store AI Assistant
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -545,7 +545,7 @@ copies or substantial portions of the Software.
 ## 🙏 Acknowledgments
 
 ### Contributors
-- **Lead Developer**: [Your Name](https://github.com/yourusername)
+- **Lead Developer**: [saim-glitch](https://github.com/saim-glitch)
 - **AI Integration**: [Contributor Name](https://github.com/contributor)
 - **UI/UX Design**: [Designer Name](https://github.com/designer)
 - **Documentation**: [Technical Writer](https://github.com/writer)
@@ -569,17 +569,17 @@ copies or substantial portions of the Software.
   <h3>⭐ Star this repository if you find it helpful!</h3>
   <p>Made with ❤️ for the developer community</p>
   
-  <a href="https://github.com/yourusername/metro-store-ai-assistant/stargazers">
-    <img src="https://img.shields.io/github/stars/yourusername/metro-store-ai-assistant?style=social" alt="GitHub stars">
+  <a href="https://github.com/saim-glitch/Raise_your_Hack_Hackathon/stargazers">
+    <img src="https://img.shields.io/github/stars/saim-glitch/Raise_your_Hack_Hackathon?style=social" alt="GitHub stars">
   </a>
-  <a href="https://github.com/yourusername/metro-store-ai-assistant/network/members">
-    <img src="https://img.shields.io/github/forks/yourusername/metro-store-ai-assistant?style=social" alt="GitHub forks">
+  <a href="https://github.com/saim-glitch/Raise_your_Hack_Hackathon/network/members">
+    <img src="https://img.shields.io/github/forks/saim-glitch/Raise_your_Hack_Hackathon?style=social" alt="GitHub forks">
   </a>
-  <a href="https://github.com/yourusername/metro-store-ai-assistant/issues">
-    <img src="https://img.shields.io/github/issues/yourusername/metro-store-ai-assistant" alt="GitHub issues">
+  <a href="https://github.com/saim-glitch/Raise_your_Hack_Hackathon/issues">
+    <img src="https://img.shields.io/github/issues/saim-glitch/Raise_your_Hack_Hackathon" alt="GitHub issues">
   </a>
 </div>
 
 ---
 
-*Last updated: December 2024*
+*Last updated: July 2025*
