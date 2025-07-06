@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - AI Shopping Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-1: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.15);
+            --shadow-3: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-nav .nav-link {
+            color: #2c3e50 !important;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #667eea !important;
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .navbar-nav .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .main-container {
+            padding: 2rem 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .page-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: inline-block;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            width: 60px;
+            height: 4px;
+            background: var(--success-gradient);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .stats-row {
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--success-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-1);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .orders-section {
+            margin-top: 3rem;
+        }
+
+        .order-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .order-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .order-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-1);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .order-id {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            background: var(--secondary-gradient);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .order-date {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-total {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            background: var(--warning-gradient);
+            padding: 0.8rem 1.5rem;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .order-items {
+            margin-bottom: 1.5rem;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .item-row:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.3rem;
+        }
+
+        .item-brand {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .item-price {
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .ai-badge {
+            background: var(--success-gradient);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-reorder {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .btn-reorder:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-2);
+            color: white;
+        }
+
+        .btn-grok {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+
+        .btn-grok:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-2);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            margin-top: 2rem;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .empty-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .empty-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--secondary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            text-decoration: none;
+            box-shadow: var(--shadow-1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1);
+            color: white;
+            box-shadow: var(--shadow-2);
+        }
+
+        .whatsapp-widget {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            z-index: 1000;
+        }
+
+        .whatsapp-widget:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-1);
+            color: white;
+        }
+
+        .whatsapp-icon {
+            font-size: 1.5rem;
+            color: #25d366;
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .order-timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin-top: 1rem;
+        }
+
+        .order-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--success-gradient);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -0.5rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--success-gradient);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .timeline-content {
+            padding-left: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .responsive-table {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .responsive-table table {
+            width: 100%;
+            min-width: 600px;
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2.5rem;
+            }
+            
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .action-btn {
+                flex: 1;
+                justify-content: center;
+            }
+            
+            .item-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .whatsapp-widget {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                margin-top: 2rem;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Loading animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>
+                AI Shopping Assistant
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/search"><i class="fas fa-search me-1"></i>Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/recommendations"><i class="fas fa-star me-1"></i>Recommendations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/orders"><i class="fas fa-shopping-bag me-1"></i>Orders</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.logged_in %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cart">
+                                <i class="fas fa-shopping-cart me-1"></i>Cart
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>{{ user.name }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/analytics"><i class="fas fa-chart-bar me-2"></i>Analytics</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header animate__animated animate__fadeInDown">
+                <h1 class="page-title">
+                    <i class="fas fa-shopping-bag me-3"></i>My Orders
+                </h1>
+                <p class="page-subtitle">Track your purchase history and reorder your favorites</p>
+            </div>
+
+            <!-- Statistics Row -->
+            <div class="row stats-row">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-number">{{ orders|length }}</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                        <div class="stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-number">₹{{ orders|sum(attribute='total_amount')|round|int if orders else 0 }}</div>
+                        <div class="stat-label">Total Spent</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+                        <div class="stat-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-number">{{ orders|sum(attribute='items')|length if orders else 0 }}</div>
+                        <div class="stat-label">Items Ordered</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+                        <div class="stat-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="stat-number">{{ orders|selectattr('items', 'selectattr', 'ordered_by_ai')|list|length }}</div>
+                        <div class="stat-label">AI Orders</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div class="orders-section">
+                {% if orders %}
+                    {% for order in orders|reverse %}
+                        <div class="order-card animate__animated animate__fadeInUp" style="animation-delay: {{ loop.index * 0.1 }}s;">
+                            <!-- Order Header -->
+                            <div class="order-header">
+                                <div>
+                                    <div class="order-id">
+                                        <i class="fas fa-hashtag me-2"></i>Order #{{ loop.index|string.zfill(4) }}
+                                    </div>
+                                    <div class="order-date mt-2">
+                                        <i class="fas fa-calendar me-2"></i>
+                                        {{ order.order_date[:10] }} at {{ order.order_date[11:16] }}
+                                    </div>
+                                </div>
+                                <div class="order-total">
+                                    <i class="fas fa-rupee-sign me-2"></i>{{ order.total_amount|round|int }}
+                                </div>
+                            </div>
+
+                            <!-- Order Items -->
+                            <div class="order-items">
+                                <h5 class="mb-3" style="color: white; font-weight: 600;">
+                                    <i class="fas fa-list me-2"></i>Order Items ({{ order.items|length }})
+                                </h5>
+                                {% for item in order.items %}
+                                    <div class="item-row">
+                                        <div class="item-info">
+                                            <div class="item-name">{{ item.name }}</div>
+                                            <div class="item-brand">{{ item.brand }}</div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="item-price">₹{{ item.price|round|int }}</div>
+                                            {% if item.ordered_by_ai %}
+                                                <span class="ai-badge">
+                                                    <i class="fas fa-robot"></i>
+                                                    AI Order
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Order Timeline -->
+                            <div class="order-timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-content">
+                                        <strong>Order Placed</strong><br>
+                                        <small>{{ order.order_date[:10] }} at {{ order.order_date[11:16] }}</small>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-content">
+                                        <strong>Order Confirmed</strong><br>
+                                        <small>Processing your order</small>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-content">
+                                        <strong>Ready for Pickup</strong><br>
+                                        <small>Contact store for pickup</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Actions -->
+                            <div class="order-actions">
+                                <button class="action-btn btn-reorder" onclick="reorderItems({{ loop.index0 }})">
+                                    <i class="fas fa-redo me-2"></i>Reorder
+                                </button>
+                                <a href="#" class="action-btn btn-grok" onclick="contactGrokForOrder({{ loop.index0 }})">
+                                    <i class="fab fa-whatsapp me-2"></i>Contact Grok
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="empty-state animate__animated animate__fadeInUp">
+                        <div class="empty-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h3 class="empty-title">No Orders Yet</h3>
+                        <p class="empty-subtitle">Start exploring our products and make your first order!</p>
+                        <a href="/search" class="action-btn btn-reorder">
+                            <i class="fas fa-search me-2"></i>Start Shopping
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <a href="/search" class="floating-action pulse-animation" title="Start Shopping">
+        <i class="fas fa-plus"></i>
+    </a>
+
+    <!-- WhatsApp Widget -->
+    <a href="#" class="whatsapp-widget" onclick="contactGrokSupport()">
+        <i class="fab fa-whatsapp whatsapp-icon"></i>
+        <div>
+            <div style="font-weight: 600;">Need Help?</div>
+            <div style="font-size: 0.9rem; opacity: 0.8;">Chat with Grok</div>
+        </div>
+    </a>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Order data for JavaScript
+        const ordersData = {{ orders|tojson if orders else '[]' }};
+
+        // Reorder function
+        function reorderItems(orderIndex) {
+            const order = ordersData[ordersData.length - 1 - orderIndex];
+            
+            // Show loading state
+            const btn = event.target.closest('.btn-reorder');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding to Cart...';
+            btn.disabled = true;
+
+            // Add items to cart
+            const promises = order.items.map(item => {
+                return fetch('/add_to_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `product_id=${item.id || 0}&name=${encodeURIComponent(item.name)}&brand=${encodeURIComponent(item.brand)}&price=${item.price}`
+                });
+            });
+
+            Promise.all(promises)
+                .then(responses => {
+                    btn.innerHTML = '<i class="fas fa-check me-2"></i>Added to Cart!';
+                    btn.style.background = 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        btn.style.background = '';
+                    }, 2000);
+
+                    // Show success message
+                    showNotification('Items added to cart successfully!', 'success');
+                })
+                .catch(error => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    showNotification('Error adding items to cart', 'error');
+                });
+        }
+
+        // Contact Grok for specific order
+        function contactGrokForOrder(orderIndex) {
+            const order = ordersData[ordersData.length - 1 - orderIndex];
+            const orderNumber = String(orderIndex + 1).padStart(4, '0');
+            
+            const message = `🤖 Hi Grok! I need assistance with my order.
+
+📋 ORDER DETAILS:
+Order #${orderNumber}
+Date: ${order.order_date.substring(0, 10)}
+Total: ₹${Math.round(order.total_amount)}
+
+🛒 ITEMS ORDERED:
+${order.items.map(item => `• ${item.name} (${item.brand}) - ₹${Math.round(item.price)}`).join('\n')}
+
+Please help me with any questions or issues regarding this order.
+
+Thank you! 🙏`;
+
+            const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Contact Grok for general support
+        function contactGrokSupport() {
+            const message = `🤖 Hi Grok! I need assistance with my AI Shopping Assistant account.
+
+Please help me with any questions or support I might need.
+
+Thank you! 🙏`;
+
+            const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Show notification function
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                animation: slideInRight 0.3s ease;
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add some sample data if no orders exist
+            if (ordersData.length === 0) {
+                // You can add sample orders here for testing
+                console.log('No orders found');
+            }
+            
+            // Initialize tooltips
+            const tooltips = document.querySelectorAll('[title]');
+            tooltips.forEach(tooltip => {
+                new bootstrap.Tooltip(tooltip);
+            });
+        });
+
+        // Add CSS animation for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

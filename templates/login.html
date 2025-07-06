@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Shopping Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            max-width: 450px;
+            width: 100%;
+        }
+        
+        .login-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .login-header h2 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .login-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .login-body {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group-text {
+            background: transparent;
+            border: 2px solid #e9ecef;
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .btn-login {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 12px;
+            padding: 14px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-login:hover::before {
+            left: 100%;
+        }
+        
+        .home-link {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .home-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .home-link a:hover {
+            color: #764ba2;
+        }
+        
+        .ai-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .feature-highlight {
+            background: linear-gradient(135deg, #667eea20, #764ba220);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .feature-highlight h6 {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .feature-highlight p {
+            color: #666;
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .login-body {
+                padding: 30px 25px;
+            }
+            
+            .login-header {
+                padding: 25px;
+            }
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .loading .spinner-border {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        
+        .form-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .form-control.error {
+            border-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2><i class="fas fa-robot"></i> AI Shopping Assistant</h2>
+                <p>Connect with Grok AI for smart shopping <span class="ai-badge">POWERED BY AI</span></p>
+            </div>
+            
+            <div class="login-body">
+                <form method="POST" id="loginForm">
+                    <div class="form-group">
+                        <label for="name" class="form-label">
+                            <i class="fas fa-user"></i> Full Name
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" class="form-control" id="name" name="name" required 
+                                   placeholder="Enter your full name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone" class="form-label">
+                            <i class="fas fa-phone"></i> Phone Number
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-phone"></i>
+                            </span>
+                            <input type="tel" class="form-control" id="phone" name="phone" required 
+                                   placeholder="+92 300 1234567">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i> Email Address
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" class="form-control" id="email" name="email" required 
+                                   placeholder="your.email@example.com">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age" class="form-label">
+                                <i class="fas fa-birthday-cake"></i> Age Range
+                            </label>
+                            <select class="form-control" id="age" name="age" required>
+                                <option value="">Select Age Range</option>
+                                <option value="18-25">18-25</option>
+                                <option value="26-35">26-35</option>
+                                <option value="36-45">36-45</option>
+                                <option value="46-55">46-55</option>
+                                <option value="56+">56+</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gender" class="form-label">
+                                <i class="fas fa-venus-mars"></i> Gender
+                            </label>
+                            <select class="form-control" id="gender" name="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location" class="form-label">
+                            <i class="fas fa-map-marker-alt"></i> Location
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </span>
+                            <select class="form-control" id="location" name="location" required>
+                                <option value="">Select Your City</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Bangalore">Bangalore</option>
+                                <option value="Hyderabad">Hyderabad</option>
+                                <option value="Chennai">Chennai</option>
+                                <option value="Kolkata">Kolkata</option>
+                                <option value="Pune">Pune</option>
+                                <option value="Ahmedabad">Ahmedabad</option>
+                                <option value="Jaipur">Jaipur</option>
+                                <option value="Surat">Surat</option>
+                                <option value="Lucknow">Lucknow</option>
+                                <option value="Kanpur">Kanpur</option>
+                                <option value="Nagpur">Nagpur</option>
+                                <option value="Indore">Indore</option>
+                                <option value="Thane">Thane</option>
+                                <option value="Bhopal">Bhopal</option>
+                                <option value="Visakhapatnam">Visakhapatnam</option>
+                                <option value="Pimpri-Chinchwad">Pimpri-Chinchwad</option>
+                                <option value="Patna">Patna</option>
+                                <option value="Vadodara">Vadodara</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-highlight">
+                        <h6><i class="fas fa-magic"></i> AI-Powered Features</h6>
+                        <p>Get personalized recommendations, smart search, and instant WhatsApp support with Grok AI</p>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-login">
+                        <span class="login-text">
+                            <i class="fas fa-sign-in-alt"></i> Connect with AI Assistant
+                        </span>
+                        <span class="loading">
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                            Connecting...
+                        </span>
+                    </button>
+                </form>
+                
+                <div class="home-link">
+                    <a href="#" onclick="window.history.back()">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission for now
+            
+            // Clear previous errors
+            clearErrors();
+            
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+            
+            const submitBtn = this.querySelector('.btn-login');
+            const loginText = submitBtn.querySelector('.login-text');
+            const loadingText = submitBtn.querySelector('.loading');
+            
+            // Show loading state
+            loginText.style.display = 'none';
+            loadingText.style.display = 'inline-flex';
+            loadingText.style.alignItems = 'center';
+            submitBtn.disabled = true;
+            
+            // Simulate processing time
+            setTimeout(() => {
+                // Here you would normally submit the form data
+                // For now, we'll just show success and reset the form
+                alert('Registration successful! Welcome to AI Shopping Assistant.');
+                
+                // Reset form
+                this.reset();
+                
+                // Reset button state
+                loginText.style.display = 'inline-flex';
+                loadingText.style.display = 'none';
+                submitBtn.disabled = false;
+            }, 2000);
+        });
+        
+        function validateForm() {
+            let isValid = true;
+            
+            // Validate name
+            const name = document.getElementById('name').value.trim();
+            if (name.length < 2) {
+                showError('name', 'Please enter a valid name (at least 2 characters)');
+                isValid = false;
+            }
+            
+            // Validate phone
+            const phone = document.getElementById('phone').value.trim();
+            if (!phone.match(/^\+92\s\d{3}\s\d{7}$/)) {
+                showError('phone', 'Please enter a valid Pakistani phone number');
+                isValid = false;
+            }
+            
+            // Validate email
+            const email = document.getElementById('email').value.trim();
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                showError('email', 'Please enter a valid email address');
+                isValid = false;
+            }
+            
+            // Validate age
+            const age = document.getElementById('age').value;
+            if (!age) {
+                showError('age', 'Please select your age range');
+                isValid = false;
+            }
+            
+            // Validate gender
+            const gender = document.getElementById('gender').value;
+            if (!gender) {
+                showError('gender', 'Please select your gender');
+                isValid = false;
+            }
+            
+            // Validate location
+            const location = document.getElementById('location').value;
+            if (!location) {
+                showError('location', 'Please select your location');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            field.classList.add('error');
+            
+            // Create error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'form-error';
+            errorDiv.textContent = message;
+            
+            // Insert error message after the field or input group
+            const inputGroup = field.closest('.input-group');
+            if (inputGroup) {
+                inputGroup.parentNode.insertBefore(errorDiv, inputGroup.nextSibling);
+            } else {
+                field.parentNode.insertBefore(errorDiv, field.nextSibling);
+            }
+        }
+        
+        function clearErrors() {
+            // Remove error classes
+            document.querySelectorAll('.form-control.error').forEach(el => {
+                el.classList.remove('error');
+            });
+            
+            // Remove error messages
+            document.querySelectorAll('.form-error').forEach(el => {
+                el.remove();
+            });
+        }
+        
+        // Phone number formatting
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Remove error styling when user starts typing
+            if (this.classList.contains('error')) {
+                this.classList.remove('error');
+                const errorMsg = this.parentNode.parentNode.querySelector('.form-error');
+                if (errorMsg) errorMsg.remove();
+            }
+            
+            // Format Pakistani phone number
+            if (value.length >= 10) {
+                if (value.startsWith('92')) {
+                    // +92 300 1234567
+                    value = '+' + value.substring(0, 2) + ' ' + value.substring(2, 5) + ' ' + value.substring(5, 12);
+                } else if (value.startsWith('0')) {
+                    // 0300 1234567 -> +92 300 1234567
+                    value = '+92 ' + value.substring(1, 4) + ' ' + value.substring(4, 11);
+                } else {
+                    // 300 1234567 -> +92 300 1234567
+                    value = '+92 ' + value.substring(0, 3) + ' ' + value.substring(3, 10);
+                }
+            }
+            
+            e.target.value = value;
+        });
+        
+        // Clear error styling when user interacts with fields
+        document.querySelectorAll('.form-control').forEach(field => {
+            field.addEventListener('input', function() {
+                if (this.classList.contains('error')) {
+                    this.classList.remove('error');
+                    const errorMsg = this.parentNode.parentNode.querySelector('.form-error');
+                    if (errorMsg) errorMsg.remove();
+                }
+            });
+            
+            field.addEventListener('change', function() {
+                if (this.classList.contains('error')) {
+                    this.classList.remove('error');
+                    const errorMsg = this.parentNode.parentNode.querySelector('.form-error');
+                    if (errorMsg) errorMsg.remove();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

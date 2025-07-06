@@ -1,0 +1,14 @@
+
+# Requirements for Python 3.13 (MediaPipe alternative)
+opencv-python
+tensorflow
+numpy
+Pillow
+scikit-learn
+
+# Alternative hand detection libraries for Python 3.13
+# cvzone>=1.5.0  # Alternative hand tracking
+# ultralytics>=8.0.0  # YOLO-based hand detection
+
+# Note: MediaPipe is not yet compatible with Python 3.13
+# Consider downgrading to Python 3.12 for full compatibility
