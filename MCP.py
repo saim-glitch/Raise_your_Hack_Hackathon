@@ -61,16 +61,24 @@ class Store:
 if __name__ == "__main__":
     # Creating a store and adding products
     store = Store()
-    store.add_product(Product(1, "Laptop", 1200))
-    store.add_product(Product(2, "Smartphone", 800))
-    store.add_product(Product(3, "Tablet", 400))
+    store.add_product(Product(1, "meat", 1200))
+    store.add_product(Product(2, "chicken", 800))
+    store.add_product(Product(3, "beef", 400))
+    store.add_product(Product(4,"fish" ,300))
+    store.add_product(Product(5,"vegitables" ,200))
+    store.add_product(Product(6,"fruits" ,300))
+    store.add_product(Product(7,"dairy" ,300))
+    store.add_product(Product(8,"bread" ,300))
+    store.add_product(Product(9,"rice" ,300))
+    store.add_product(Product(10,"oil" ,300))
+    store.add_product(Product(11,"spices" ,300))
 
     # Searching for products
-    search_result = store.search_products("laptop")
-    print("Search Results:", search_result)  # Should return the Laptop product
+    search_result = store.search_products("meat")
+    print("Search Results:", search_result)  # Should return the meat product
 
     # Adding products to the shopping cart
-    store.cart.add_product(search_result[0])  # Add Laptop to cart
+    store.cart.add_product(search_result[0])  # Add meat to cart
 
     print(store.cart)  # Output current state of the cart
 
