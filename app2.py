@@ -14,15 +14,14 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import requests
+from groq import Groq
 from typing import Dict, List, Optional
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
 
-# Configuration
-XAI_API_KEY = "xai-BVC5I7NtvhNj9gnzVlab2tj7jQ4SRvq0tznruHfPL70BRbUWEh2VwoHJq0M7mXu58nIpDE7qhZZ8ZKAv"
-XAI_API_URL = "https://api.x.ai/v1/chat/completions"
+# Configuration - YOU NEED TO SET YOUR GROQ API KEY HERE
+GROQ_API_KEY = "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"  # Replace with your actual API key
 
 # Email Configuration
 EMAIL_CONFIG = {
@@ -35,8 +34,8 @@ EMAIL_CONFIG = {
 
 # AI Assistant Configuration
 AI_ASSISTANT_CONFIG = {
-    'name': 'Grok Assistant',
-    'personality': 'friendly, helpful, and conversational like a real human',
+    'name': 'Metro Store AI Assistant',
+    'personality': 'friendly, helpful, and conversational like a best friend',
     'capabilities': [
         'Natural conversation with customers',
         'Product recommendations from store inventory',
@@ -47,6 +46,34 @@ AI_ASSISTANT_CONFIG = {
         'Price comparisons'
     ]
 }
+
+# Initialize Groq client
+def initialize_groq():
+    """Initialize Groq client with API key"""
+    try:
+        if GROQ_API_KEY == "your-groq-api-key-here":
+            print("⚠️  WARNING: Please set your GROQ_API_KEY in the configuration section")
+            return None
+        
+        client = Groq(api_key=GROQ_API_KEY)
+        
+        # Test the connection
+        test_completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a virtual assistant and support assistant for the Metro online shop. You have to provide services to the customer by suggesting products, ordering (taking email, address, name, phone no)"},
+                {"role": "user", "content": "Hello, are you working?"}
+            ],
+            max_tokens=50
+        )
+        
+        print("✅ Groq API connection successful!")
+        return client
+    except Exception as e:
+        print(f"❌ Groq API connection failed: {str(e)}")
+        return None
+
+groq_client = initialize_groq()
 
 class EmailService:
     """Handle email notifications"""
@@ -126,8 +153,8 @@ class EmailService:
             print(f"Email sending failed: {str(e)}")
             return False
 
-class GrokAIAssistant:
-    """Enhanced AI Assistant with Grok API integration"""
+class MetroStoreAI:
+    """Enhanced AI Assistant for Metro Store"""
     
     def __init__(self, df, email_service):
         self.df = df
@@ -137,34 +164,25 @@ class GrokAIAssistant:
         
     def setup_product_context(self):
         """Prepare product data for AI context"""
-        # Create a searchable product database
+        # Create searchable text from all product fields
         self.df['search_text'] = (
-            self.df['name'].fillna('') + ' ' + 
-            self.df['brand'].fillna('') + ' ' + 
-            self.df['description'].fillna('') + ' ' + 
-            self.df['category'].fillna('')
+            self.df['name'].fillna('').astype(str) + ' ' + 
+            self.df['brand'].fillna('').astype(str) + ' ' + 
+            self.df['description'].fillna('').astype(str) + ' ' + 
+            self.df['category'].fillna('').astype(str)
         ).str.lower()
         
-        # Create product summary for AI context
-        self.product_summary = self.create_product_summary()
-        
-    def create_product_summary(self):
-        """Create a concise product summary for AI context"""
-        categories = self.df['category'].value_counts().head(10).to_dict()
-        brands = self.df['brand'].value_counts().head(10).to_dict()
-        
-        summary = {
+        # Create product summary
+        self.product_summary = {
             'total_products': len(self.df),
-            'categories': categories,
-            'brands': brands,
+            'categories': self.df['category'].value_counts().head(10).to_dict(),
+            'brands': self.df['brand'].value_counts().head(10).to_dict(),
             'price_range': {
                 'min': self.df['price_numeric'].min(),
                 'max': self.df['price_numeric'].max(),
                 'average': self.df['price_numeric'].mean()
             }
         }
-        
-        return summary
     
     def search_products(self, query: str, limit: int = 10) -> List[Dict]:
         """Search products based on query"""
@@ -176,7 +194,7 @@ class GrokAIAssistant:
         ]
         
         if len(matching_products) == 0:
-            # Try broader search
+            # Try broader search with individual words
             words = query_lower.split()
             for word in words:
                 if len(word) > 2:  # Only search meaningful words
@@ -189,19 +207,53 @@ class GrokAIAssistant:
         
         # Convert to list of dictionaries
         products = []
-        for _, product in matching_products.head(limit).iterrows():
+        for idx, product in matching_products.head(limit).iterrows():
             products.append({
-                'id': str(product.name),
-                'name': product['name'],
-                'brand': product['brand'],
-                'price': product['price_numeric'],
-                'category': product['category'],
-                'description': product.get('description', ''),
-                'availability': product.get('availability', 'Check availability'),
-                'image_url': product.get('image_url', 'https://via.placeholder.com/300')
+                'id': str(idx),
+                'name': str(product['name']),
+                'brand': str(product['brand']),
+                'price': float(product['price_numeric']),
+                'category': str(product['category']),
+                'description': str(product.get('description', '')),
+                'availability': str(product.get('availability', 'Check availability')),
+                'image_url': str(product.get('image_url', 'https://via.placeholder.com/300')),
+                'url': str(product.get('url', '#'))
             })
         
         return products
+    
+    def create_system_prompt(self) -> str:
+        """Create system prompt for Groq API"""
+        return f"""You are a friendly AI shopping assistant for Metro Store. You talk like a best friend - warm, casual, helpful, and genuinely excited about helping with shopping!
+
+🛍️ METRO STORE INVENTORY:
+- Total Products: {self.product_summary['total_products']}
+- Categories: {', '.join(self.product_summary['categories'].keys())}
+- Top Brands: {', '.join(list(self.product_summary['brands'].keys())[:5])}
+- Price Range: Rs. {self.product_summary['price_range']['min']:.0f} - Rs. {self.product_summary['price_range']['max']:.0f}
+
+💪 YOUR ABILITIES:
+1. Search and recommend products from our real store inventory
+2. Provide product information, prices, and availability
+3. Help customers find what they're looking for
+4. Give shopping advice and recommendations
+5. Have natural, friendly conversations
+
+🎯 PERSONALITY:
+- Talk like you're chatting with your best friend
+- Be enthusiastic and supportive
+- Use emojis and casual language
+- Ask follow-up questions to help better
+- Celebrate their choices and be encouraging
+
+📝 IMPORTANT NOTES:
+- All product information comes from our real CSV database
+- Always be helpful and accurate
+- If you can't find something, suggest alternatives
+- Keep responses friendly and conversational
+- When speaking, use natural conversational tone suitable for voice output
+
+Remember: You're their shopping buddy who knows the store inside and out! 🛒✨"""
     
     def get_product_by_id(self, product_id: str) -> Optional[Dict]:
         """Get product details by ID"""
@@ -209,56 +261,24 @@ class GrokAIAssistant:
             product = self.df.iloc[int(product_id)]
             return {
                 'id': product_id,
-                'name': product['name'],
-                'brand': product['brand'],
-                'price': product['price_numeric'],
-                'category': product['category'],
-                'description': product.get('description', ''),
-                'availability': product.get('availability', 'Check availability'),
-                'image_url': product.get('image_url', 'https://via.placeholder.com/300')
+                'name': str(product['name']),
+                'brand': str(product['brand']),
+                'price': float(product['price_numeric']),
+                'category': str(product['category']),
+                'description': str(product.get('description', '')),
+                'availability': str(product.get('availability', 'Check availability')),
+                'image_url': str(product.get('image_url', 'https://via.placeholder.com/300')),
+                'url': str(product.get('url', '#'))
             }
         except:
             return None
     
-    def create_system_prompt(self) -> str:
-        """Create system prompt for Grok API"""
-        return f"""You are a friendly AI shopping assistant for Metro Store. You talk like a real human - warm, helpful, and conversational.
-
-STORE INVENTORY OVERVIEW:
-- Total Products: {self.product_summary['total_products']}
-- Categories: {', '.join(self.product_summary['categories'].keys())}
-- Top Brands: {', '.join(list(self.product_summary['brands'].keys())[:5])}
-- Price Range: Rs. {self.product_summary['price_range']['min']:.0f} - Rs. {self.product_summary['price_range']['max']:.0f}
-
-CAPABILITIES:
-1. Search and recommend products from our store inventory
-2. Place orders directly when customers ask
-3. Send email confirmations for orders
-4. Provide product information, availability, and pricing
-5. Have natural conversations about shopping needs
-
-IMPORTANT GUIDELINES:
-- Always search the store inventory when customers ask about products
-- When customers want to order/buy something, confirm details and place the order
-- Be conversational and friendly, like talking to a friend
-- Provide helpful suggestions based on customer needs
-- Always mention product availability and pricing
-- Use emojis naturally in conversation
-- When placing orders, confirm: product name, quantity, and total price
-
-ORDERING PROCESS:
-When a customer wants to order something:
-1. Confirm the product details
-2. Ask for quantity if not specified
-3. Calculate total price
-4. Confirm the order
-5. Mention that email confirmation will be sent
-
-Remember: You can access real product data and place actual orders. Be helpful and human-like!"""
-
-    def call_grok_api(self, user_message: str, user_profile: Dict) -> Dict:
-        """Call Grok API for natural conversation"""
+    def call_groq_api(self, user_message: str, user_profile: Dict) -> Dict:
+        """Call Groq API for natural conversation"""
         try:
+            if not groq_client:
+                return self.fallback_response(user_message, user_profile)
+            
             # First, search for products based on user message
             search_keywords = self.extract_search_keywords(user_message)
             products = []
@@ -266,7 +286,7 @@ Remember: You can access real product data and place actual orders. Be helpful a
             if search_keywords:
                 products = self.search_products(search_keywords, limit=5)
             
-            # Prepare conversation context
+            # Prepare conversation messages
             messages = [
                 {"role": "system", "content": self.create_system_prompt()}
             ]
@@ -286,34 +306,21 @@ Remember: You can access real product data and place actual orders. Be helpful a
             # Add current user message
             messages.append({"role": "user", "content": user_message})
             
-            # Prepare API request
-            headers = {
-                "Authorization": f"Bearer {XAI_API_KEY}",
-                "Content-Type": "application/json"
-            }
+            # Make API call to Groq
+            completion = groq_client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=messages,
+                max_tokens=1000,
+                temperature=0.7
+            )
             
-            data = {
-                "model": "grok-beta",
-                "messages": messages,
-                "max_tokens": 1000,
-                "temperature": 0.7
-            }
+            ai_response = completion.choices[0].message.content
             
-            # Make API call
-            response = requests.post(XAI_API_URL, headers=headers, json=data, timeout=30)
+            # Process the response for actions
+            return self.process_ai_response(ai_response, user_message, user_profile, products)
             
-            if response.status_code == 200:
-                result = response.json()
-                ai_response = result['choices'][0]['message']['content']
-                
-                # Process the response for actions
-                return self.process_ai_response(ai_response, user_message, user_profile, products)
-            else:
-                print(f"API Error: {response.status_code}, {response.text}")
-                return self.fallback_response(user_message, user_profile)
-                
         except Exception as e:
-            print(f"Grok API error: {str(e)}")
+            print(f"Groq API error: {str(e)}")
             return self.fallback_response(user_message, user_profile)
     
     def process_ai_response(self, ai_response: str, user_message: str, user_profile: Dict, products: List[Dict]) -> Dict:
@@ -330,12 +337,12 @@ Remember: You can access real product data and place actual orders. Be helpful a
             'products': products,
             'order_placed': order_result is not None,
             'order_details': order_result,
-            'context': 'grok_api'
+            'context': 'groq_api'
         }
     
     def extract_search_keywords(self, message: str) -> str:
         """Extract product search keywords from message"""
-        # Simple keyword extraction - enhanced logic
+        # Simple keyword extraction
         search_indicators = [
             'looking for', 'want to buy', 'need', 'search for',
             'show me', 'find', 'get me', 'order', 'buy', 'want'
@@ -435,11 +442,11 @@ Remember: You can access real product data and place actual orders. Be helpful a
         
         if 'hello' in message_lower or 'hi' in message_lower:
             response = "Hello! 👋 Welcome to Metro Store! I'm your AI shopping assistant. I can help you find products, check prices, and even place orders. What are you looking for today?"
-        elif 'meat' in message_lower:
+        elif any(word in message_lower for word in ['meat', 'chicken', 'beef', 'fish']):
             if products:
                 response = "Great! I found some fresh meat products for you:\n\n"
                 for i, product in enumerate(products, 1):
-                    response += f"{i}. **{product['name']}** by {product['brand']} - Rs. {product['price']} ({product['availability']})\n"
+                    response += f"{i}. **{product['name']}** by {product['brand']} - Rs. {product['price']:.2f} ({product['availability']})\n"
                 response += "\nWould you like to order any of these or need more details? 🥩"
             else:
                 response = "I'd love to help you find meat products! Let me search our fresh meat section for you. We have chicken, beef, mutton, and fish available. What specific type of meat are you looking for?"
@@ -449,7 +456,7 @@ Remember: You can access real product data and place actual orders. Be helpful a
                 for i, product in enumerate(products, 1):
                     response += f"**{i}. {product['name']}**\n"
                     response += f"   Brand: {product['brand']}\n"
-                    response += f"   Price: Rs. {product['price']}\n"
+                    response += f"   Price: Rs. {product['price']:.2f}\n"
                     response += f"   Category: {product['category']}\n"
                     response += f"   Status: {product['availability']}\n\n"
                 response += "Would you like to add any of these to your cart or place an order? 🛒"
@@ -459,7 +466,7 @@ Remember: You can access real product data and place actual orders. Be helpful a
             if products:
                 response = f"I found some products related to '{search_keywords}':\n\n"
                 for i, product in enumerate(products, 1):
-                    response += f"{i}. **{product['name']}** by {product['brand']} - Rs. {product['price']}\n"
+                    response += f"{i}. **{product['name']}** by {product['brand']} - Rs. {product['price']:.2f}\n"
                 response += "\nWould you like more details or want to order any of these? 😊"
             else:
                 response = "I'm here to help you find the perfect products! 🛍️ You can ask me to:\n\n"
@@ -476,7 +483,7 @@ Remember: You can access real product data and place actual orders. Be helpful a
             'context': 'fallback'
         }
 
-# Utility functions (keeping existing ones)
+# Utility functions
 def parse_price(price_str):
     """Parse price string and convert to float"""
     if pd.isna(price_str):
@@ -517,53 +524,23 @@ def load_data():
         df['description'] = df['description'].fillna('No description available')
         df['availability'] = df['availability'].fillna('Check Availability')
         
+        print(f"✅ CSV data loaded successfully: {len(df)} products")
+        print(f"📊 Categories: {df['category'].nunique()}")
+        print(f"🏷️ Brands: {df['brand'].nunique()}")
+        print(f"💰 Price range: Rs. {df['price_numeric'].min():.2f} - Rs. {df['price_numeric'].max():.2f}")
+        
         return df
     except FileNotFoundError:
-        # Create sample data structure with more meat products
-        sample_data = {
-            'url': ['https://example1.com'] * 60,
-            'name': [
-                'Chicken Breast Fresh', 'Mutton Boneless', 'Fish Fillet Fresh', 'Beef Steak Cut',
-                'Chicken Leg Piece', 'Prawns Fresh', 'Mutton Chops', 'Chicken Wings',
-                'Whey Protein Powder', 'Energy Drink', 'Organic Rice', 'Cooking Oil Premium',
-                'Fresh Vegetables', 'Dairy Milk', 'Bread Loaf', 'Basmati Rice'
-            ] * 4,
-            'price': [
-                'Rs. 500', 'Rs. 800', 'Rs. 600', 'Rs. 900',
-                'Rs. 450', 'Rs. 700', 'Rs. 750', 'Rs. 400',
-                'Rs. 2000', 'Rs. 150', 'Rs. 1000', 'Rs. 800',
-                'Rs. 200', 'Rs. 60', 'Rs. 40', 'Rs. 120'
-            ] * 4,
-            'brand': [
-                'Fresh Mart', 'Premium Meats', 'Ocean Fresh', 'Butcher\'s Choice',
-                'Farm Fresh', 'Sea Harvest', 'Premium Cuts', 'Fresh Mart',
-                'Optimum', 'Red Bull', 'Organic India', 'Fortune',
-                'Farm Fresh', 'Amul', 'Britannia', 'India Gate'
-            ] * 4,
-            'image_url': ['https://via.placeholder.com/300'] * 64,
-            'availability': ['In Stock', 'Available', 'Limited Stock', 'Fresh Daily'] * 16,
-            'description': [
-                'Fresh chicken breast high in protein', 'Premium mutton boneless cuts', 'Fresh fish fillet daily catch', 'Premium beef steak cuts',
-                'Fresh chicken leg pieces', 'Fresh prawns from coast', 'Premium mutton chops', 'Fresh chicken wings',
-                'Premium whey protein for workouts', 'Energy boost drink', 'Organic basmati rice', 'Premium cooking oil',
-                'Fresh daily vegetables', 'Pure dairy milk', 'Fresh bread loaf', 'Premium basmati rice'
-            ] * 4,
-            'category': [
-                'Meat', 'Meat', 'Meat', 'Meat',
-                'Meat', 'Seafood', 'Meat', 'Meat',
-                'Supplements', 'Beverages', 'Grains', 'Cooking Oil',
-                'Vegetables', 'Dairy', 'Bakery', 'Grains'
-            ] * 4
-        }
-        df = pd.DataFrame(sample_data)
-        # Calculate numeric prices
-        df['price_numeric'] = df['price'].apply(parse_price)
-        return df
+        print("❌ CSV file 'metro-data.csv' not found. Please ensure the file exists in the same directory.")
+        return pd.DataFrame()  # Return empty DataFrame
+    except Exception as e:
+        print(f"❌ Error loading CSV: {str(e)}")
+        return pd.DataFrame()
 
 # Initialize services
 df = load_data()
 email_service = EmailService(EMAIL_CONFIG)
-ai_assistant = GrokAIAssistant(df, email_service)
+ai_assistant = MetroStoreAI(df, email_service)
 
 # Initialize session data
 def init_session():
@@ -592,6 +569,10 @@ def init_session():
 @app.route('/')
 def home():
     init_session()
+    
+    if len(df) == 0:
+        flash('No product data available. Please ensure metro-data.csv is in the correct location.', 'error')
+        return render_template('error.html', message='No product data available')
     
     # Get featured products
     featured_products = df.sample(n=min(6, len(df)))
@@ -649,8 +630,15 @@ def logout():
 
 @app.route('/ai_chat', methods=['POST'])
 def ai_chat():
-    """Enhanced AI Chat endpoint with Grok API"""
+    """Enhanced AI Chat endpoint with Groq API"""
     init_session()
+    
+    if len(df) == 0:
+        return jsonify({
+            'success': False,
+            'message': 'Sorry, product data is not available at the moment. Please try again later.',
+            'timestamp': datetime.now().strftime('%H:%M')
+        })
     
     query = request.json.get('query', '').strip()
     
@@ -658,8 +646,8 @@ def ai_chat():
         return jsonify({'success': False, 'message': 'Please enter a message'})
     
     try:
-        # Get AI response from Grok API
-        ai_response = ai_assistant.call_grok_api(query, session['user_profile'])
+        # Get AI response from Groq API
+        ai_response = ai_assistant.call_groq_api(query, session['user_profile'])
         
         # Handle order placement
         if ai_response.get('order_placed'):
@@ -677,7 +665,7 @@ def ai_chat():
             'timestamp': datetime.now().isoformat(),
             'user_message': query,
             'ai_response': ai_response['response'],
-            'context': ai_response.get('context', 'grok_api'),
+            'context': ai_response.get('context', 'groq_api'),
             'products_found': len(ai_response.get('products', [])),
             'order_placed': ai_response.get('order_placed', False)
         }
@@ -691,7 +679,7 @@ def ai_chat():
             'success': True,
             'message': ai_response['response'],
             'products': ai_response.get('products', []),
-            'context': ai_response.get('context', 'grok_api'),
+            'context': ai_response.get('context', 'groq_api'),
             'order_placed': ai_response.get('order_placed', False),
             'order_details': ai_response.get('order_details'),
             'timestamp': datetime.now().strftime('%H:%M')
@@ -750,30 +738,30 @@ def add_to_cart():
         return jsonify({'success': False, 'message': f'Error adding to cart: {str(e)}'})
 
 @app.route('/cart')
-def cart():
-    """View cart"""
+def view_cart():
+    """View shopping cart"""
     init_session()
     
-    # Calculate total
-    total = sum(item['price'] * item['quantity'] for item in session['cart'])
+    total_amount = sum(item['price'] * item['quantity'] for item in session['cart'])
     
     return render_template('cart.html',
                          user=session['user_profile'],
-                         cart_items=session['cart'],
-                         total=total)
+                         cart=session['cart'],
+                         total_amount=total_amount)
 
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
+    """Remove item from cart"""
     init_session()
     
-    item_id = request.json.get('id')
+    item_id = request.json.get('item_id')
     
     if not item_id:
         return jsonify({'success': False, 'message': 'No item ID provided'})
     
     try:
-        # Remove item from cart
-        session['cart'] = [item for item in session['cart'] if item['id'] != item_id]
+        # Find and remove item from cart
+        session['cart'] = [item for item in session['cart'] if item.get('id') != item_id]
         session.modified = True
         
         return jsonify({
@@ -785,26 +773,98 @@ def remove_from_cart():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error removing item: {str(e)}'})
 
-@app.route('/products')
-def products():
-    """View all products"""
+@app.route('/clear_cart', methods=['POST'])
+def clear_cart():
+    """Clear all items from cart"""
     init_session()
     
-    # Get filters
+    session['cart'] = []
+    session.modified = True
+    
+    return jsonify({
+        'success': True,
+        'message': 'Cart cleared',
+        'cart_count': 0
+    })
+
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    """Process checkout"""
+    init_session()
+    
+    if not session['cart']:
+        return jsonify({'success': False, 'message': 'Cart is empty'})
+    
+    if not session['user_profile']['logged_in']:
+        return jsonify({'success': False, 'message': 'Please log in to place an order'})
+    
+    try:
+        # Calculate total
+        total_amount = sum(item['price'] * item['quantity'] for item in session['cart'])
+        
+        # Create order
+        order_details = {
+            'order_id': f"ORD-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            'order_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'customer_name': session['user_profile']['name'],
+            'customer_email': session['user_profile']['email'],
+            'items': session['cart'].copy(),
+            'total_amount': total_amount,
+            'status': 'confirmed'
+        }
+        
+        # Send email confirmation
+        if session['user_profile']['email']:
+            email_sent = email_service.send_order_confirmation(
+                session['user_profile']['email'],
+                session['user_profile']['name'],
+                order_details
+            )
+            order_details['email_sent'] = email_sent
+        
+        # Save order and clear cart
+        session['orders'].append(order_details)
+        session['cart'] = []
+        session.modified = True
+        
+        return jsonify({
+            'success': True,
+            'message': 'Order placed successfully!',
+            'order_id': order_details['order_id']
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error processing order: {str(e)}'})
+
+@app.route('/search')
+def search():
+    """Search products"""
+    init_session()
+    
+    query = request.args.get('q', '').strip()
     category = request.args.get('category', '')
-    brand = request.args.get('brand', '')
     min_price = request.args.get('min_price', type=float)
     max_price = request.args.get('max_price', type=float)
-    search = request.args.get('search', '')
+    
+    if not query and not category:
+        return render_template('search.html', 
+                             products=[],
+                             query='',
+                             user=session['user_profile'])
     
     # Filter products
     filtered_df = df.copy()
     
-    if category:
-        filtered_df = filtered_df[filtered_df['category'].str.contains(category, case=False, na=False)]
+    if query:
+        query_lower = query.lower()
+        filtered_df = filtered_df[
+            (filtered_df['name'].str.lower().str.contains(query_lower, na=False)) |
+            (filtered_df['brand'].str.lower().str.contains(query_lower, na=False)) |
+            (filtered_df['description'].str.lower().str.contains(query_lower, na=False))
+        ]
     
-    if brand:
-        filtered_df = filtered_df[filtered_df['brand'].str.contains(brand, case=False, na=False)]
+    if category:
+        filtered_df = filtered_df[filtered_df['category'].str.lower() == category.lower()]
     
     if min_price is not None:
         filtered_df = filtered_df[filtered_df['price_numeric'] >= min_price]
@@ -812,43 +872,25 @@ def products():
     if max_price is not None:
         filtered_df = filtered_df[filtered_df['price_numeric'] <= max_price]
     
-    if search:
-        filtered_df = filtered_df[
-            filtered_df['name'].str.contains(search, case=False, na=False) |
-            filtered_df['brand'].str.contains(search, case=False, na=False) |
-            filtered_df['description'].str.contains(search, case=False, na=False)
-        ]
-    
-    # Convert to list
-    products_list = []
-    for _, product in filtered_df.iterrows():
-        products_list.append({
+    # Convert to list for template
+    products = []
+    for _, product in filtered_df.head(50).iterrows():  # Limit to 50 results
+        products.append({
             'id': str(product.name),
             'name': safe_str(product['name']),
             'brand': safe_str(product['brand']),
             'price': product['price_numeric'],
             'category': safe_str(product['category']),
-            'description': safe_str(product.get('description', ''), 100),
+            'description': safe_str(product.get('description', ''), 150),
             'image_url': product.get('image_url', 'https://via.placeholder.com/300'),
             'availability': safe_str(product.get('availability', 'Check Availability'))
         })
     
-    # Get unique categories and brands for filters
-    categories = sorted(df['category'].dropna().unique())
-    brands = sorted(df['brand'].dropna().unique())
-    
-    return render_template('products.html',
+    return render_template('search.html',
+                         products=products,
+                         query=query,
                          user=session['user_profile'],
-                         products=products_list,
-                         categories=categories,
-                         brands=brands,
-                         filters={
-                             'category': category,
-                             'brand': brand,
-                             'min_price': min_price,
-                             'max_price': max_price,
-                             'search': search
-                         })
+                         total_results=len(products))
 
 @app.route('/product/<product_id>')
 def product_detail(product_id):
@@ -866,14 +908,15 @@ def product_detail(product_id):
             'category': safe_str(product['category']),
             'description': safe_str(product.get('description', '')),
             'image_url': product.get('image_url', 'https://via.placeholder.com/300'),
-            'availability': safe_str(product.get('availability', 'Check Availability'))
+            'availability': safe_str(product.get('availability', 'Check Availability')),
+            'url': product.get('url', '#')
         }
         
         # Get similar products
         similar_products = df[df['category'] == product['category']].sample(n=min(4, len(df)))
         similar_list = []
         for _, sim_product in similar_products.iterrows():
-            if str(sim_product.name) != product_id:
+            if str(sim_product.name) != product_id:  # Exclude current product
                 similar_list.append({
                     'id': str(sim_product.name),
                     'name': safe_str(sim_product['name']),
@@ -883,71 +926,95 @@ def product_detail(product_id):
                 })
         
         return render_template('product_detail.html',
-                             user=session['user_profile'],
                              product=product_data,
-                             similar_products=similar_list)
+                             similar_products=similar_list,
+                             user=session['user_profile'])
         
-    except (IndexError, ValueError):
+    except (ValueError, IndexError):
         flash('Product not found', 'error')
-        return redirect(url_for('products'))
+        return redirect(url_for('home'))
 
 @app.route('/analytics')
 def analytics():
     """View analytics dashboard"""
     init_session()
     
-    # Create analytics data
-    analytics_data = {
-        'total_products': len(df),
-        'total_brands': df['brand'].nunique(),
-        'total_categories': df['category'].nunique(),
-        'avg_price': df['price_numeric'].mean(),
-        'price_range': {
-            'min': df['price_numeric'].min(),
-            'max': df['price_numeric'].max()
+    if len(df) == 0:
+        flash('No data available for analytics', 'error')
+        return redirect(url_for('home'))
+    
+    # Calculate analytics
+    category_counts = df['category'].value_counts().head(10)
+    brand_counts = df['brand'].value_counts().head(10)
+    price_stats = df['price_numeric'].describe()
+    
+    # Create charts data
+    charts_data = {
+        'categories': {
+            'labels': category_counts.index.tolist(),
+            'data': category_counts.values.tolist()
         },
-        'category_distribution': df['category'].value_counts().to_dict(),
-        'brand_distribution': df['brand'].value_counts().head(10).to_dict(),
-        'user_stats': {
-            'total_orders': len(session['orders']),
-            'cart_items': len(session['cart']),
-            'chat_messages': len(session['chat_history'])
+        'brands': {
+            'labels': brand_counts.index.tolist(),
+            'data': brand_counts.values.tolist()
+        },
+        'price_distribution': {
+            'min': price_stats['min'],
+            'max': price_stats['max'],
+            'mean': price_stats['mean'],
+            'median': price_stats['50%']
         }
     }
     
     return render_template('analytics.html',
                          user=session['user_profile'],
-                         analytics=analytics_data)
+                         charts_data=charts_data,
+                         total_products=len(df))
 
-@app.route('/api/products/search')
-def api_search_products():
-    """API endpoint for product search"""
-    query = request.args.get('q', '')
-    limit = request.args.get('limit', 10, type=int)
+@app.route('/chat_history')
+def chat_history():
+    """View chat history"""
+    init_session()
     
-    if not query:
-        return jsonify({'success': False, 'message': 'No query provided'})
-    
-    try:
-        products = ai_assistant.search_products(query, limit)
-        return jsonify({
-            'success': True,
-            'products': products,
-            'count': len(products)
-        })
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+    return render_template('chat_history.html',
+                         user=session['user_profile'],
+                         chat_history=session['chat_history'])
 
-@app.route('/api/stats')
-def api_stats():
-    """API endpoint for statistics"""
+@app.route('/clear_chat', methods=['POST'])
+def clear_chat():
+    """Clear chat history"""
+    init_session()
+    
+    session['chat_history'] = []
+    ai_assistant.conversation_history = []
+    session.modified = True
+    
     return jsonify({
-        'total_products': len(df),
-        'total_brands': df['brand'].nunique(),
-        'total_categories': df['category'].nunique(),
-        'cart_items': len(session.get('cart', [])),
-        'total_orders': len(session.get('orders', []))
+        'success': True,
+        'message': 'Chat history cleared'
     })
 
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template('500.html'), 500
+
 if __name__ == '__main__':
+    print("🚀 Starting Metro Store AI Assistant...")
+    print("📦 Features enabled:")
+    print("   • AI Chat with Groq API")
+    print("   • Product Search & Recommendations")
+    print("   • Order Management")
+    print("   • Email Notifications")
+    print("   • Shopping Cart")
+    print("   • Analytics Dashboard")
+    print(f"🤖 AI Assistant: {AI_ASSISTANT_CONFIG['name']}")
+    print(f"🎯 Personality: {AI_ASSISTANT_CONFIG['personality']}")
+    print("💡 Make sure to set your GROQ_API_KEY and EMAIL_CONFIG!")
+    print("🔗 Access the app at: http://localhost:5000")
+    print("=" * 60)
+    
     app.run(debug=True, host='0.0.0.0', port=5000)

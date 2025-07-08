@@ -3,563 +3,628 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics Dashboard - Metro Shopping</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Analytics Dashboard - Metro Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #45a049;
+            --accent-color: #ff6b6b;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --text-color: #333;
+            --bg-color: #f8f9fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
         body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
+            background-color: var(--bg-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
         }
-        
+
         .navbar {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: var(--card-shadow);
         }
-        
+
         .navbar-brand {
-            color: white !important;
-            font-weight: 700;
+            font-weight: bold;
             font-size: 1.5rem;
         }
-        
-        .nav-link {
-            color: rgba(255, 255, 255, 0.8) !important;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        
-        .nav-link:hover {
-            color: white !important;
-        }
-        
-        .main-content {
-            padding: 2rem 0;
-        }
-        
-        .dashboard-header {
-            text-align: center;
+
+        .analytics-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            margin-bottom: 3rem;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
         }
-        
-        .dashboard-header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .dashboard-header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .analytics-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
             padding: 2rem;
             margin-bottom: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
-        .analytics-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
-        
-        .card-title {
-            color: #333;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .card-title i {
-            color: #1e3c72;
-            font-size: 1.2rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-        
-        .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
-        
-        .stat-icon {
-            font-size: 2.5rem;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
             margin-bottom: 1rem;
-            color: #1e3c72;
         }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #333;
+
+        .stat-icon.revenue {
+            background: var(--primary-color);
+        }
+
+        .stat-icon.orders {
+            background: var(--info-color);
+        }
+
+        .stat-icon.customers {
+            background: var(--warning-color);
+        }
+
+        .stat-icon.products {
+            background: var(--accent-color);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
             margin-bottom: 0.5rem;
         }
-        
+
         .stat-label {
             color: #666;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
         }
-        
+
+        .stat-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-change.positive {
+            color: var(--primary-color);
+        }
+
+        .stat-change.negative {
+            color: var(--accent-color);
+        }
+
         .chart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-wrapper {
             position: relative;
-            height: 400px;
+            height: 300px;
             margin-bottom: 1rem;
         }
-        
-        .chart-small {
-            height: 300px;
-        }
-        
-        .back-button {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
+
+        .table-container {
+            background: white;
             border-radius: 12px;
-            padding: 0.75rem 1.5rem;
-            text-decoration: none;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
             font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
         }
-        
-        .back-button:hover {
-            background: rgba(255, 255, 255, 0.3);
+
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table th {
+            background: var(--bg-color);
+            border: none;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .table td {
+            border: none;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .product-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .date-filter {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-btn {
+            background: var(--primary-color);
             color: white;
-            transform: translateY(-2px);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background 0.3s ease;
         }
-        
-        .gradient-border {
-            position: relative;
-            border: 2px solid transparent;
-            background: linear-gradient(white, white) padding-box,
-                        linear-gradient(135deg, #1e3c72, #2a5298) border-box;
+
+        .filter-btn:hover {
+            background: var(--secondary-color);
         }
-        
+
+        .filter-btn.active {
+            background: var(--secondary-color);
+        }
+
+        .progress-bar {
+            background: var(--primary-color);
+        }
+
+        .badge {
+            font-size: 0.8rem;
+        }
+
         @media (max-width: 768px) {
-            .dashboard-header h1 {
-                font-size: 2rem;
-            }
-            
-            .analytics-card {
+            .stat-card {
                 padding: 1.5rem;
             }
             
-            .chart-container {
-                height: 300px;
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .chart-wrapper {
+                height: 250px;
             }
         }
     </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('home') }}">
-                <i class="fas fa-shopping-cart me-2"></i>Metro Shopping
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shopping-cart me-2"></i>Metro Store
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('home') }}">
+                        <a class="nav-link" href="/">
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('search') }}">
+                        <a class="nav-link" href="/search">
                             <i class="fas fa-search me-1"></i>Search
                         </a>
                     </li>
-                    {% if user.logged_in %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('recommendations') }}">
-                            <i class="fas fa-star me-1"></i>Recommendations
+                        <a class="nav-link" href="/cart">
+                            <i class="fas fa-shopping-cart me-1"></i>Cart
+                            <span class="badge bg-danger ms-1">0</span>
                         </a>
                     </li>
-                    {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('cart') }}">
-                            <i class="fas fa-shopping-cart me-1"></i>Cart
+                        <a class="nav-link" href="/orders">
+                            <i class="fas fa-box me-1"></i>Orders
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/analytics">
+                            <i class="fas fa-chart-bar me-1"></i>Analytics
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>Admin
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/orders">My Orders</a></li>
+                            <li><a class="dropdown-item" href="/analytics">Analytics</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        </ul>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
+    <!-- Analytics Header -->
+    <div class="analytics-header">
+        <div class="container">
+            <h1><i class="fas fa-chart-bar me-3"></i>Analytics Dashboard</h1>
+            <p class="lead">Monitor your store performance and insights</p>
+        </div>
+    </div>
+
     <!-- Main Content -->
-    <div class="container main-content">
-        <!-- Header -->
-        <div class="dashboard-header">
-            <h1><i class="fas fa-chart-line me-3"></i>Analytics Dashboard</h1>
-            <p>Comprehensive insights into our product catalog and market trends</p>
+    <div class="container">
+        <!-- Date Filter -->
+        <div class="date-filter">
+            <h5 class="mb-3">Time Period</h5>
+            <button class="filter-btn active" onclick="filterByPeriod('today')">Today</button>
+            <button class="filter-btn" onclick="filterByPeriod('week')">This Week</button>
+            <button class="filter-btn" onclick="filterByPeriod('month')">This Month</button>
+            <button class="filter-btn" onclick="filterByPeriod('year')">This Year</button>
         </div>
 
-        <!-- Quick Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-boxes"></i>
-                </div>
-                <div class="stat-number" id="total-products">{{ analytics_data.price_distribution|length }}</div>
-                <div class="stat-label">Total Products</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-tags"></i>
-                </div>
-                <div class="stat-number" id="total-brands">{{ analytics_data.brand_counts|length }}</div>
-                <div class="stat-label">Brands</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-                <div class="stat-number" id="total-categories">{{ analytics_data.category_counts|length }}</div>
-                <div class="stat-label">Categories</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-rupee-sign"></i>
-                </div>
-                <div class="stat-number" id="avg-price">₹<span id="avg-price-value">0</span></div>
-                <div class="stat-label">Avg Price</div>
-            </div>
-        </div>
-
-        <!-- Charts Row 1 -->
+        <!-- Stats Cards -->
         <div class="row">
-            <div class="col-lg-8">
-                <div class="analytics-card">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-bar"></i>
-                        Price Distribution
-                    </h3>
-                    <div class="chart-container">
-                        <canvas id="priceDistributionChart"></canvas>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon revenue">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-value">Rs. 45,680</div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up me-1"></i>+12.5%
                     </div>
                 </div>
             </div>
-            
-            <div class="col-lg-4">
-                <div class="analytics-card">
-                    <h3 class="card-title">
-                        <i class="fas fa-pie-chart"></i>
-                        Top Categories
-                    </h3>
-                    <div class="chart-container chart-small">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon orders">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-value">1,234</div>
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up me-1"></i>+8.3%
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon customers">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-value">567</div>
+                    <div class="stat-label">Customers</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up me-1"></i>+15.2%
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon products">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-value">89</div>
+                    <div class="stat-label">Products Sold</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down me-1"></i>-3.1%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="chart-container">
+                    <div class="chart-title">Sales Overview</div>
+                    <div class="chart-wrapper">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <div class="chart-title">Order Status</div>
+                    <div class="chart-wrapper">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Charts -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <div class="chart-title">Top Categories</div>
+                    <div class="chart-wrapper">
                         <canvas id="categoryChart"></canvas>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Charts Row 2 -->
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="analytics-card">
-                    <h3 class="card-title">
-                        <i class="fas fa-crown"></i>
-                        Top Brands by Product Count
-                    </h3>
-                    <div class="chart-container chart-small">
-                        <canvas id="brandChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <div class="analytics-card">
-                    <h3 class="card-title">
-                        <i class="fas fa-money-bill-wave"></i>
-                        Average Price by Brand
-                    </h3>
-                    <div class="chart-container chart-small">
-                        <canvas id="avgPriceChart"></canvas>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <div class="chart-title">Customer Growth</div>
+                    <div class="chart-wrapper">
+                        <canvas id="customerChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Back Button -->
-        <div class="text-center mt-4">
-            <a href="{{ url_for('home') }}" class="back-button">
-                <i class="fas fa-arrow-left"></i>
-                Back to Home
-            </a>
+        <!-- Top Products Table -->
+        <div class="table-container">
+            <div class="table-title">Top Selling Products</div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Sales</th>
+                            <th>Revenue</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/40x40" alt="Product" class="product-image me-2">
+                                    <div>
+                                        <div class="fw-bold">Samsung Galaxy S21</div>
+                                        <small class="text-muted">Electronics</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-primary">Electronics</span></td>
+                            <td>245</td>
+                            <td>Rs. 18,375</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" role="progressbar" style="width: 75%">75%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/40x40" alt="Product" class="product-image me-2">
+                                    <div>
+                                        <div class="fw-bold">Apple iPhone 13</div>
+                                        <small class="text-muted">Electronics</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-primary">Electronics</span></td>
+                            <td>189</td>
+                            <td>Rs. 15,120</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" role="progressbar" style="width: 45%">45%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/40x40" alt="Product" class="product-image me-2">
+                                    <div>
+                                        <div class="fw-bold">Sony Headphones</div>
+                                        <small class="text-muted">Audio</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-info">Audio</span></td>
+                            <td>156</td>
+                            <td>Rs. 9,360</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" role="progressbar" style="width: 90%">90%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/40x40" alt="Product" class="product-image me-2">
+                                    <div>
+                                        <div class="fw-bold">MacBook Air</div>
+                                        <small class="text-muted">Computers</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-success">Computers</span></td>
+                            <td>89</td>
+                            <td>Rs. 8,900</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 25%">25%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/40x40" alt="Product" class="product-image me-2">
+                                    <div>
+                                        <div class="fw-bold">Gaming Mouse</div>
+                                        <small class="text-muted">Gaming</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-danger">Gaming</span></td>
+                            <td>78</td>
+                            <td>Rs. 4,680</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 15%">15%</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Footer -->
+    <footer class="mt-5 py-4 bg-dark text-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Metro Store</h5>
+                    <p class="text-muted">Your AI-powered shopping assistant</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Analytics data passed from Flask
-        const analyticsData = {
-            priceDistribution: {{ analytics_data.price_distribution | tojson | safe }},
-            brandCounts: {{ analytics_data.brand_counts | tojson | safe }},
-            categoryCounts: {{ analytics_data.category_counts | tojson | safe }},
-            avgPriceByBrand: {{ analytics_data.avg_price_by_brand | tojson | safe }}
+        // Chart configurations
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
         };
 
-        // Chart.js default colors
-        const colors = [
-            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-            '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#36A2EB'
-        ];
+        // Sales Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Sales',
+                    data: [12000, 19000, 15000, 25000, 22000, 30000],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: chartOptions
+        });
 
-        // Calculate and display average price
-        function calculateAveragePrice() {
-            const prices = analyticsData.priceDistribution.filter(price => price > 0);
-            const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
-            document.getElementById('avg-price-value').textContent = Math.round(avgPrice).toLocaleString();
-        }
+        // Order Status Chart
+        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        const orderStatusChart = new Chart(orderStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Delivered', 'Shipped', 'Pending', 'Cancelled'],
+                datasets: [{
+                    data: [65, 20, 10, 5],
+                    backgroundColor: ['#4CAF50', '#17a2b8', '#ffc107', '#ff6b6b']
+                }]
+            },
+            options: chartOptions
+        });
 
-        // Price Distribution Chart (Histogram)
-        function createPriceDistributionChart() {
-            const ctx = document.getElementById('priceDistributionChart').getContext('2d');
-            
-            // Create price bins
-            const prices = analyticsData.priceDistribution.filter(price => price > 0);
-            const maxPrice = Math.max(...prices);
-            const binSize = Math.ceil(maxPrice / 10);
-            const bins = [];
-            const binLabels = [];
-            
-            for (let i = 0; i < 10; i++) {
-                const start = i * binSize;
-                const end = (i + 1) * binSize;
-                bins.push(prices.filter(price => price >= start && price < end).length);
-                binLabels.push(`₹${start.toLocaleString()} - ₹${end.toLocaleString()}`);
+        // Category Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryChart = new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Electronics', 'Clothing', 'Books', 'Home', 'Sports'],
+                datasets: [{
+                    label: 'Sales',
+                    data: [450, 320, 180, 290, 140],
+                    backgroundColor: '#4CAF50'
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
             }
+        });
 
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: binLabels,
-                    datasets: [{
-                        label: 'Number of Products',
-                        data: bins,
-                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 2,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: 'white',
-                            bodyColor: 'white',
-                            borderColor: 'rgba(255, 255, 255, 0.2)',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
+        // Customer Growth Chart
+        const customerCtx = document.getElementById('customerChart').getContext('2d');
+        const customerChart = new Chart(customerCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'New Customers',
+                    data: [45, 67, 89, 123, 156, 189],
+                    borderColor: '#17a2b8',
+                    backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: chartOptions
+        });
 
-        // Category Distribution Chart
-        function createCategoryChart() {
-            const ctx = document.getElementById('categoryChart').getContext('2d');
+        // Filter by time period
+        function filterByPeriod(period) {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Here you would typically make an API call to fetch data for the selected period
+            console.log(`Filtering by: ${period}`);
             
-            const labels = Object.keys(analyticsData.categoryCounts);
-            const data = Object.values(analyticsData.categoryCounts);
-
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors.slice(0, labels.length),
-                        borderWidth: 3,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: 'white',
-                            bodyColor: 'white'
-                        }
-                    }
-                }
-            });
+            // Update charts and stats based on selected period
+            // This is a placeholder - you would implement actual data fetching
         }
 
-        // Brand Chart
-        function createBrandChart() {
-            const ctx = document.getElementById('brandChart').getContext('2d');
-            
-            const labels = Object.keys(analyticsData.brandCounts);
-            const data = Object.values(analyticsData.brandCounts);
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Product Count',
-                        data: data,
-                        backgroundColor: colors.slice(0, labels.length),
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        y: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Average Price by Brand Chart
-        function createAvgPriceChart() {
-            const ctx = document.getElementById('avgPriceChart').getContext('2d');
-            
-            const labels = Object.keys(analyticsData.avgPriceByBrand);
-            const data = Object.values(analyticsData.avgPriceByBrand).map(price => Math.round(price));
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Average Price (₹)',
-                        data: data,
-                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 2,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            callbacks: {
-                                label: function(context) {
-                                    return 'Avg Price: ₹' + context.parsed.y.toLocaleString();
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '₹' + value.toLocaleString();
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Initialize all charts when page loads
+        // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            calculateAveragePrice();
-            createPriceDistributionChart();
-            createCategoryChart();
-            createBrandChart();
-            createAvgPriceChart();
+            console.log('Analytics page loaded');
         });
     </script>
 </body>

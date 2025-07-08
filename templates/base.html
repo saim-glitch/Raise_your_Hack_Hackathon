@@ -3,520 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AI Smart Shop - Your Intelligent Shopping Assistant{% endblock %}</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>">
+    <title>{% block title %}Metro Store AI Assistant{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Custom CSS -->
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --warning-gradient: linear-gradient(135deg, #fdbb2d 0%, #22c1c3 100%);
-            --dark-gradient: linear-gradient(135deg, #434343 0%, #000000 100%);
-            
-            --bg-primary: #0f0f23;
-            --bg-secondary: #1a1a2e;
-            --bg-accent: #16213e;
-            --text-primary: #ffffff;
-            --text-secondary: #b8b8b8;
-            --text-accent: #00d4ff;
-            
-            --shadow-light: 0 4px 15px 0 rgba(31, 38, 135, 0.37);
-            --shadow-medium: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            --shadow-heavy: 0 15px 35px rgba(31, 38, 135, 0.4);
-            
-            --border-radius: 20px;
-            --border-radius-small: 12px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --primary-color: #4CAF50;
+            --secondary-color: #2E7D32;
+            --accent-color: #81C784;
+            --background-color: #F8F9FA;
+            --text-color: #333;
         }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
         
-        /* Animated Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 20%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
-            z-index: -1;
-            animation: backgroundShift 20s ease-in-out infinite;
-        }
-        
-        @keyframes backgroundShift {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            25% { transform: translateX(-20px) translateY(-10px); }
-            50% { transform: translateX(20px) translateY(-20px); }
-            75% { transform: translateX(-10px) translateY(10px); }
-        }
-        
-        /* Glass morphism effects */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-medium);
-            transition: var(--transition);
-        }
-        
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-heavy);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Navigation */
         .navbar {
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem 0;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            transition: var(--transition);
-        }
-        
-        .navbar.scrolled {
-            background: rgba(26, 26, 46, 0.98);
-            box-shadow: var(--shadow-medium);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .navbar-brand {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
+            font-weight: bold;
             font-size: 1.5rem;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        
-        .navbar-brand:hover {
-            transform: scale(1.05);
-        }
-        
-        .navbar-nav .nav-link {
-            color: var(--text-primary);
-            font-weight: 500;
-            margin: 0 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-small);
-            transition: var(--transition);
-            position: relative;
-        }
-        
-        .navbar-nav .nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: var(--primary-gradient);
-            transition: var(--transition);
-            transform: translateX(-50%);
-        }
-        
-        .navbar-nav .nav-link:hover::before {
-            width: 80%;
-        }
-        
-        .navbar-nav .nav-link:hover {
-            color: var(--text-accent);
-            transform: translateY(-2px);
-        }
-        
-        .navbar-nav .nav-link.active {
-            background: var(--primary-gradient);
-            color: white;
-        }
-        
-        /* Buttons */
-        .btn {
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius-small);
-            font-weight: 500;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: var(--transition);
-        }
-        
-        .btn:hover::before {
-            left: 100%;
         }
         
         .btn-primary {
-            background: var(--primary-gradient);
-            color: white;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: all 0.3s ease;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
-        }
-        
-        .btn-secondary {
-            background: var(--secondary-gradient);
-            color: white;
-        }
-        
-        .btn-success {
-            background: var(--success-gradient);
-            color: white;
-        }
-        
-        .btn-warning {
-            background: var(--warning-gradient);
-            color: white;
-        }
-        
-        .btn-outline-primary {
-            border: 2px solid transparent;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            position: relative;
-        }
-        
-        .btn-outline-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: var(--border-radius-small);
-            padding: 2px;
-            background: var(--primary-gradient);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: exclude;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: exclude;
-        }
-        
-        .btn-outline-primary:hover {
-            background: var(--primary-gradient);
-            color: white;
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
             transform: translateY(-2px);
         }
         
-        /* Cards */
         .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--border-radius);
-            backdrop-filter: blur(10px);
-            transition: var(--transition);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
         
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: var(--shadow-heavy);
-            border-color: rgba(255, 255, 255, 0.2);
         }
         
-        .card-header {
-            background: rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        .chat-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background: white;
         }
         
-        /* Main Content */
-        .main-content {
-            margin-top: 80px;
-            min-height: calc(100vh - 80px);
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
         }
         
-        /* Alerts */
-        .alert {
-            border: none;
-            border-radius: var(--border-radius-small);
-            backdrop-filter: blur(10px);
-            border-left: 4px solid;
-            animation: slideInRight 0.5s ease-out;
+        .chat-message.user {
+            background-color: #e3f2fd;
+            text-align: right;
         }
         
-        .alert-success {
-            background: rgba(75, 181, 67, 0.1);
-            color: #4bb543;
-            border-left-color: #4bb543;
+        .chat-message.ai {
+            background-color: #f1f8e9;
         }
         
-        .alert-warning {
-            background: rgba(255, 193, 7, 0.1);
-            color: #ffc107;
-            border-left-color: #ffc107;
+        .product-card {
+            transition: all 0.3s ease;
         }
         
-        .alert-danger {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-            border-left-color: #dc3545;
+        .product-card:hover {
+            transform: scale(1.05);
         }
         
-        .alert-info {
-            background: rgba(13, 202, 240, 0.1);
-            color: #0dcaf0;
-            border-left-color: #0dcaf0;
-        }
-        
-        /* Forms */
-        .form-control {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--border-radius-small);
-            color: var(--text-primary);
-            padding: 0.75rem 1rem;
-            transition: var(--transition);
-        }
-        
-        .form-control:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--text-accent);
-            box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
-            color: var(--text-primary);
-        }
-        
-        .form-control::placeholder {
-            color: var(--text-secondary);
-        }
-        
-        .form-label {
-            color: var(--text-primary);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Footer */
         .footer {
-            background: var(--bg-secondary);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2rem 0;
-            margin-top: 3rem;
-        }
-        
-        /* Floating Action Button */
-        .fab {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--primary-gradient);
+            background-color: var(--secondary-color);
             color: white;
-            border: none;
-            font-size: 1.5rem;
-            box-shadow: var(--shadow-medium);
-            transition: var(--transition);
-            z-index: 1000;
+            padding: 20px 0;
+            margin-top: 50px;
         }
         
-        .fab:hover {
-            transform: scale(1.1);
-            box-shadow: var(--shadow-heavy);
+        .alert {
+            border-radius: 10px;
         }
         
-        /* Animations */
-        @keyframes slideInRight {
-            from {
-                transform: translateX(300px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
         }
         
-        @keyframes fadeInUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+        .badge {
+            font-size: 0.7rem;
         }
         
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
+        .stats-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
         
-        .animate-fade-in {
-            animation: fadeInUp 0.8s ease-out;
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
         }
         
-        .animate-pulse {
-            animation: pulse 2s infinite;
+        .ai-chat-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
-        /* Loading Spinner */
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .loading {
+            display: none;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .loading.show {
+            display: block;
         }
         
-        /* Responsive Design */
         @media (max-width: 768px) {
-            .navbar-brand {
-                font-size: 1.2rem;
+            .card {
+                margin-bottom: 20px;
             }
             
-            .btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
+            .chat-container {
+                max-height: 300px;
             }
-            
-            .fab {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-        }
-        
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-gradient);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-gradient);
-        }
-        
-        /* Cart Badge */
-        .cart-badge {
-            background: var(--secondary-gradient);
-            color: white;
-            border-radius: 50%;
-            padding: 0.2rem 0.5rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            animation: pulse 2s infinite;
-        }
-        
-        /* Search Bar */
-        .search-container {
-            position: relative;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .search-container .form-control {
-            padding-right: 50px;
-        }
-        
-        .search-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--primary-gradient);
-            border: none;
-            color: white;
-            padding: 0.5rem;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Toast Notifications */
-        .toast-container {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            z-index: 1050;
-        }
-        
-        .toast {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--border-radius-small);
-            color: var(--text-primary);
-        }
-        
-        .toast-header {
-            background: rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
     
@@ -524,10 +153,10 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('home') }}">
-                <i class="fas fa-robot me-2"></i>AI Smart Shop
+                <i class="fas fa-store"></i> Metro Store AI
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -538,55 +167,56 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('home') }}">
-                            <i class="fas fa-home me-1"></i>Home
+                            <i class="fas fa-home"></i> Home
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('search') }}">
-                            <i class="fas fa-search me-1"></i>Search
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('recommendations') }}">
-                            <i class="fas fa-magic me-1"></i>Recommendations
+                            <i class="fas fa-search"></i> Search
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('analytics') }}">
-                            <i class="fas fa-chart-bar me-1"></i>Analytics
+                            <i class="fas fa-chart-bar"></i> Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('chat_history') }}">
+                            <i class="fas fa-comments"></i> Chat History
                         </a>
                     </li>
                 </ul>
                 
                 <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_cart') }}">
+                            <i class="fas fa-shopping-cart"></i> Cart
+                            {% if stats and stats.cart_items > 0 %}
+                                <span class="badge bg-danger">{{ stats.cart_items }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    
                     {% if user and user.logged_in %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('cart') }}">
-                                <i class="fas fa-shopping-cart me-1"></i>Cart
-                                {% if session.cart and session.cart|length > 0 %}
-                                    <span class="cart-badge">{{ session.cart|length }}</span>
-                                {% endif %}
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('orders') }}">
-                                <i class="fas fa-box me-1"></i>Orders
+                                <i class="fas fa-box"></i> Orders
                             </a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user me-1"></i>{{ user.name }}
+                                <i class="fas fa-user"></i> {{ user.name }}
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ url_for('logout') }}">
-                                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                    <i class="fas fa-sign-out-alt"></i> Logout
                                 </a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('login') }}">
-                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                                <i class="fas fa-sign-in-alt"></i> Login
                             </a>
                         </li>
                     {% endif %}
@@ -595,184 +225,110 @@
         </div>
     </nav>
     
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
     <!-- Main Content -->
-    <main class="main-content">
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="container mt-3">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                            <i class="fas fa-{{ 'exclamation-triangle' if category == 'warning' else 'info-circle' if category == 'info' else 'check-circle' if category == 'success' else 'times-circle' }} me-2"></i>
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-        
-        <!-- Page Content -->
+    <main class="container mt-4">
         {% block content %}{% endblock %}
     </main>
     
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer mt-5">
         <div class="container">
             <div class="row">
-                <div class="col-md-4">
-                    <h5>AI Smart Shop</h5>
-                    <p class="text-muted">Your intelligent shopping assistant powered by AI technology.</p>
+                <div class="col-md-6">
+                    <h5><i class="fas fa-store"></i> Metro Store AI Assistant</h5>
+                    <p>Your intelligent shopping companion powered by AI</p>
                 </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ url_for('home') }}" class="text-muted">Home</a></li>
-                        <li><a href="{{ url_for('search') }}" class="text-muted">Search</a></li>
-                        <li><a href="{{ url_for('recommendations') }}" class="text-muted">Recommendations</a></li>
-                        <li><a href="{{ url_for('analytics') }}" class="text-muted">Analytics</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Support</h5>
-                    <p class="text-muted">
-                        <i class="fab fa-whatsapp me-2"></i>
-                        WhatsApp: {{ whatsapp_config.phone_number if whatsapp_config else '+923146979692' }}
-                    </p>
-                    <p class="text-muted">
-                        <i class="fas fa-clock me-2"></i>
-                        Support Hours: {{ whatsapp_config.support_hours if whatsapp_config else '9 AM - 9 PM' }}
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2024 Metro Store. All rights reserved.</p>
+                    <p>
+                        <i class="fas fa-robot"></i> AI-Powered Shopping Experience
                     </p>
                 </div>
-            </div>
-            <hr class="my-4">
-            <div class="text-center">
-                <p class="text-muted mb-0">© 2024 AI Smart Shop. All rights reserved. Made with ❤️ and AI.</p>
             </div>
         </div>
     </footer>
     
-    <!-- WhatsApp Floating Button -->
-    {% if whatsapp_config %}
-    <button class="fab" id="whatsappBtn" title="Contact Grok AI Support">
-        <i class="fab fa-whatsapp"></i>
-    </button>
-    {% endif %}
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Toast Container -->
-    <div class="toast-container"></div>
-    
-    <!-- JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-    
+    <!-- Common JavaScript -->
     <script>
-        // Navbar scroll effect
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
+        // Show loading spinner
+        function showLoading(element) {
+            element.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+            element.disabled = true;
+        }
         
-        // WhatsApp button
-        document.getElementById('whatsappBtn')?.addEventListener('click', function() {
-            fetch('/get_whatsapp_message?context=general')
-                .then(response => response.json())
-                .then(data => {
-                    const whatsappUrl = `https://wa.me/${data.phone.replace('+', '')}?text=${encodeURIComponent(data.message)}`;
-                    window.open(whatsappUrl, '_blank');
-                });
-        });
+        // Hide loading spinner
+        function hideLoading(element, originalText) {
+            element.innerHTML = originalText;
+            element.disabled = false;
+        }
         
-        // Toast notifications
-        function showToast(message, type = 'info') {
-            const toastContainer = document.querySelector('.toast-container');
-            const toastId = 'toast-' + Date.now();
-            
-            const toastHTML = `
-                <div class="toast" id="${toastId}" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <i class="fas fa-${type === 'success' ? 'check-circle text-success' : type === 'error' ? 'exclamation-triangle text-danger' : 'info-circle text-info'} me-2"></i>
-                        <strong class="me-auto">AI Smart Shop</strong>
-                        <small class="text-muted">now</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-                    </div>
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                </div>
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type} position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
             `;
+            document.body.appendChild(toast);
             
-            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-            
-            const toast = new bootstrap.Toast(document.getElementById(toastId));
-            toast.show();
-            
-            // Remove toast element after it's hidden
-            document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
-                this.remove();
-            });
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
         }
         
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-        
-        // Add loading state to buttons
-        function addLoadingState(button) {
-            const originalText = button.innerHTML;
-            button.innerHTML = '<span class="spinner me-2"></span>Loading...';
-            button.disabled = true;
-            
-            return function() {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            };
+        // Format currency
+        function formatCurrency(amount) {
+            return `Rs. ${amount.toFixed(2)}`;
         }
         
-        // Animate elements on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-fade-in');
+        // Add to cart function
+        function addToCart(productData) {
+            fetch('/add_to_cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    // Update cart count if element exists
+                    const cartBadge = document.querySelector('.navbar .badge');
+                    if (cartBadge) {
+                        cartBadge.textContent = data.cart_count;
+                    }
+                } else {
+                    showToast(data.message, 'danger');
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error adding item to cart', 'danger');
             });
-        }, observerOptions);
-        
-        // Observe all cards and major content blocks
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.card, .glass-card, .alert').forEach(el => {
-                observer.observe(el);
-            });
-        });
-        
-        // Global error handler
-        window.addEventListener('error', function(e) {
-            console.error('Global error:', e.error);
-            showToast('Something went wrong. Please try again.', 'error');
-        });
-        
-        // Make global functions available
-        window.showToast = showToast;
-        window.addLoadingState = addLoadingState;
+        }
     </script>
     
     {% block extra_js %}{% endblock %}

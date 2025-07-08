@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - Metro Store</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), #34495e) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .product-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin: 30px 0;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-image {
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 100%;
+            height: auto;
+        }
+
+        .product-details {
+            padding: 20px;
+        }
+
+        .product-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .product-brand {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success-color);
+            margin: 20px 0;
+        }
+
+        .product-description {
+            color: #666;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+
+        .availability-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .unavailable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-add-to-cart {
+            background: linear-gradient(135deg, var(--success-color), #229954);
+            border: none;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-add-to-cart:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+            color: white;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .quantity-btn {
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        .quantity-input {
+            width: 80px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 8px;
+            font-size: 1.1rem;
+        }
+
+        .similar-products {
+            margin-top: 50px;
+        }
+
+        .similar-product-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .similar-product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .similar-product-image {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, var(--primary-color), #34495e);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            border-radius: 15px;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="fas fa-shopping-cart me-2"></i>Metro Store AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_cart') }}">
+                            <i class="fas fa-shopping-cart me-1"></i>Cart
+                            <span class="badge bg-danger ms-1" id="cart-count">{{ user.cart_items or 0 }}</span>
+                        </a>
+                    </li>
+                    {% if user.logged_in %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('orders') }}">
+                                <i class="fas fa-box me-1"></i>Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-link">Hello, {{ user.name }}!</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="product-container">
+            <!-- Back Button -->
+            <a href="{{ url_for('home') }}" class="back-btn">
+                <i class="fas fa-arrow-left me-2"></i>Back to Products
+            </a>
+
+            <div class="row mt-4">
+                <!-- Product Image -->
+                <div class="col-md-6">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image w-100">
+                </div>
+
+                <!-- Product Details -->
+                <div class="col-md-6">
+                    <div class="product-details">
+                        <h1 class="product-title">{{ product.name }}</h1>
+                        <p class="product-brand">
+                            <i class="fas fa-tag me-2"></i>{{ product.brand }}
+                        </p>
+                        
+                        <div class="product-price">
+                            <i class="fas fa-rupee-sign me-2"></i>{{ "%.2f"|format(product.price) }}
+                        </div>
+
+                        <div class="mb-3">
+                            <span class="availability-badge {{ 'available' if 'available' in product.availability.lower() else 'unavailable' }}">
+                                <i class="fas fa-{{ 'check' if 'available' in product.availability.lower() else 'times' }} me-1"></i>
+                                {{ product.availability }}
+                            </span>
+                        </div>
+
+                        <div class="product-description">
+                            <h5><i class="fas fa-info-circle me-2"></i>Description</h5>
+                            <p>{{ product.description or 'No description available.' }}</p>
+                        </div>
+
+                        <div class="product-category">
+                            <strong><i class="fas fa-folder me-2"></i>Category:</strong> {{ product.category }}
+                        </div>
+
+                        <!-- Quantity Selector -->
+                        <div class="quantity-selector">
+                            <span><strong>Quantity:</strong></span>
+                            <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                            <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="99">
+                            <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                        </div>
+
+                        <!-- Add to Cart Button -->
+                        <button class="btn btn-add-to-cart btn-lg w-100" onclick="addToCart()" id="add-to-cart-btn">
+                            <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                        </button>
+
+                        <!-- Buy Now Button -->
+                        <button class="btn btn-primary btn-lg w-100 mt-3" onclick="buyNow()">
+                            <i class="fas fa-bolt me-2"></i>Buy Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Similar Products -->
+        {% if similar_products %}
+        <div class="similar-products">
+            <div class="product-container">
+                <h3 class="mb-4">
+                    <i class="fas fa-star me-2"></i>Similar Products
+                </h3>
+                <div class="row">
+                    {% for similar in similar_products %}
+                    <div class="col-md-3 col-sm-6 mb-4">
+                        <div class="card similar-product-card">
+                            <img src="{{ similar.image_url }}" class="card-img-top similar-product-image" alt="{{ similar.name }}">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ similar.name }}</h6>
+                                <p class="card-text text-muted small">{{ similar.brand }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-success fw-bold">₹{{ "%.2f"|format(similar.price) }}</span>
+                                    <a href="{{ url_for('product_detail', product_id=similar.id) }}" class="btn btn-sm btn-outline-primary">
+                                        View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="notification-toast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-shopping-cart text-success me-2"></i>
+                <strong class="me-auto">Metro Store</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                Product added to cart successfully!
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Quantity management
+        function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            const currentValue = parseInt(quantityInput.value);
+            if (currentValue < 99) {
+                quantityInput.value = currentValue + 1;
+            }
+        }
+
+        function decreaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            const currentValue = parseInt(quantityInput.value);
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+            }
+        }
+
+        // Add to cart functionality
+        function addToCart() {
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+            
+            // Show loading state
+            addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
+            addToCartBtn.disabled = true;
+            
+            const productData = {
+                id: '{{ product.id }}',
+                name: '{{ product.name }}',
+                brand: '{{ product.brand }}',
+                price: {{ product.price }},
+                quantity: quantity,
+                image_url: '{{ product.image_url }}',
+                category: '{{ product.category }}',
+                description: '{{ product.description }}'
+            };
+
+            fetch('/add_to_cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart count
+                    document.getElementById('cart-count').textContent = data.cart_count;
+                    
+                    // Show success toast
+                    showToast(data.message, 'success');
+                    
+                    // Reset button
+                    addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Add to Cart';
+                    addToCartBtn.disabled = false;
+                } else {
+                    showToast(data.message, 'error');
+                    addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Add to Cart';
+                    addToCartBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error adding product to cart. Please try again.', 'error');
+                addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Add to Cart';
+                addToCartBtn.disabled = false;
+            });
+        }
+
+        // Buy now functionality
+        function buyNow() {
+            addToCart();
+            // Redirect to cart after a short delay
+            setTimeout(() => {
+                window.location.href = '{{ url_for("view_cart") }}';
+            }, 1000);
+        }
+
+        // Show toast notification
+        function showToast(message, type) {
+            const toastElement = document.getElementById('notification-toast');
+            const toastBody = document.getElementById('toast-message');
+            const toastHeader = toastElement.querySelector('.toast-header');
+            
+            toastBody.textContent = message;
+            
+            // Update toast styling based on type
+            if (type === 'success') {
+                toastHeader.querySelector('i').className = 'fas fa-check-circle text-success me-2';
+                toastElement.classList.remove('border-danger');
+                toastElement.classList.add('border-success');
+            } else {
+                toastHeader.querySelector('i').className = 'fas fa-exclamation-triangle text-danger me-2';
+                toastElement.classList.remove('border-success');
+                toastElement.classList.add('border-danger');
+            }
+            
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+
+        // Initialize quantity input validation
+        document.getElementById('quantity').addEventListener('input', function() {
+            const value = parseInt(this.value);
+            if (value < 1) this.value = 1;
+            if (value > 99) this.value = 99;
+        });
+    </script>
+</body>
+</html>
