@@ -61,8 +61,8 @@ class Store:
 if __name__ == "__main__":
     # Creating a store and adding products
     store = Store()
-    store.add_product(Product(1, "meat", 1200))
-    store.add_product(Product(2, "chicken", 800))
+    store.add_product(Product(1, "meat", label))
+    store.add_product(Product(2, "chicken", ))
     store.add_product(Product(3, "beef", 400))
     store.add_product(Product(4,"fish" ,300))
     store.add_product(Product(5,"vegitables" ,200))
